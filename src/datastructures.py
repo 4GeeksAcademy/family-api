@@ -19,14 +19,14 @@ class FamilyStructure:
         return randint(0, 99999999)
 
     def add_member(self, member):
-        person = ({
+        person = {
             "id": self._generateId(),
             "first_name": member.get("first_name"),
             "last_name": self.last_name,
             "age": member.get("age"),
             "lucky_numbers": member.get("lucky_numbers")
 
-        })
+        }
 
         return self._members.append(person)
 
