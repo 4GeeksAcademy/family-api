@@ -30,16 +30,63 @@ def sitemap():
 
 
 @app.route('/members', methods=['GET'])
-def handle_hello():
-    # This is how you can use the Family datastructure by calling its methods
-    members = jackson_family.get_all_members()
-    response_body = {"hello": "world",
-                     "family": members}
-    return jsonify(response_body), 200
+def get_all_members():
+        
+        members = jackson_family.get_all_members()
+        
+        response = jsonify(members)
+        response.headers['Content-Type'] = 'application/json'
+        return response, 200
+    
+
+@app.route('/members/<int:member_id>', methods=['GET'])
+def get_single_member(member_id):
+        
+        member = jackson_family.get_member(member_id)
+        
+        if member is None:
+            error_response = jsonify({"error": "Member not found"})
+            error_response.headers['Content-Type'] = 'application/json'
+            return error_response, 404
+        
+        success_response = jsonify(member)
+        success_response.headers['Content-Type'] = 'application/json'
+        return success_response, 200
+        
+
+@app.route('/members', methods=['POST'])
+def add_new_member():
+  
+    member_data = request.get_json()
+    
+    if "first_name" not in member_data:
+        error_response = jsonify({"error": "Missing first_name"})
+        error_response.headers['Content-Type'] = 'application/json'
+        return error_response, 400
+    
+    new_member = jackson_family.add_member(member_data)
+    
+    success_response = jsonify(new_member)
+    success_response.headers['Content-Type'] = 'application/json'
+    return success_response, 200
 
 
+@app.route('/members/<int:member_id>', methods=['DELETE'])
+def delete_member(member_id):
+    
+    deleted_member = jackson_family.delete_member(member_id)
+    
+    if deleted_member is None:
+        error_response = jsonify({"error": "Member not found"})
+        error_response.headers['Content-Type'] = 'application/json'
+        return error_response, 404
+    
+    success_response = jsonify({"done": True})
+    success_response.headers['Content-Type'] = 'application/json'
+    return success_response, 200
 
 # This only runs if `$ python src/app.py` is executed
 if __name__ == '__main__':
     PORT = int(os.environ.get('PORT', 3000))
     app.run(host='0.0.0.0', port=PORT, debug=True)
+
